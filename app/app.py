@@ -77,40 +77,48 @@ def consultation():
 
     return jsonify(rows)
 
-@app.get("/count")
-def count():
+def get_count_value():
     init_db()
-
     conn = get_conn()
     cur = conn.execute("SELECT COUNT(*) FROM events")
     n = cur.fetchone()[0]
     conn.close()
+    return n
+
+@app.get("/count")
+def count():
+    n = get_count_value()
 
     return jsonify(count=n)
 
 @app.get("/status")
 def status():
-    count = count()["count"]
+    import os, time
+
+    count = get_count_value()
+
     last_backup_file = None
     backup_age_seconds = None
 
+    backup_dir = "/backup"
     try:
         files = [f for f in os.listdir(backup_dir) if f.endswith(".db")]
         if files:
             files.sort(reverse=True)
-            last_backup = files[0]
+            last_backup_file = files[0]
 
-            full_path = os.path.join(backup_dir, last_backup)
+            full_path = os.path.join(backup_dir, last_backup_file)
             mtime = os.path.getmtime(full_path)
-            backup_age = int(time.time() - mtime)
+            backup_age_seconds = int(time.time() - mtime)
     except Exception:
         pass
 
     return jsonify({
         "count": count,
-        "last_backup_file": last_backup,
-        "backup_age_seconds": backup_age
+        "last_backup_file": last_backup_file,
+        "backup_age_seconds": backup_age_seconds
     })
+
 
 # ---------- Main ----------
 if __name__ == "__main__":

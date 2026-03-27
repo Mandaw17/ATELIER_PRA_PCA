@@ -256,7 +256,7 @@ Il manque alors une HA sur la db.*
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-*On peut mettre en place une HA sur la db et sortir le backup de notre infra.*
+*On peut mettre en place une HA sur la db et sortir le backup de notre infra (s3 externe).*
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
@@ -268,14 +268,86 @@ Difficulté : Moyenne (~2 heures)
 * last_backup_file : nom du dernier backup présent dans /backup
 * backup_age_seconds : âge du dernier backup
 
-*..**Déposez ici une copie d'écran** de votre réussite..*
+*..**Déposez ici une copie d'écran** 
+![Screenshot Actions](atelier6.1status.PNG)  
+
 
 ---------------------------------------------------
 ### **Atelier 2 : Choisir notre point de restauration**  
 Aujourd’hui nous restaurobs “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
 
-*..Décrir ici votre procédure de restauration (votre runbook)..*  
+** Lister les sauvegardes disponibles**
+
+```
+kubectl -n pra run debug-backup \
+  --rm -it \
+  --image=alpine \
+  --overrides='
+{
+  "spec": {
+    "containers": [{
+      "name": "debug",
+      "image": "alpine",
+      "command": ["sh"],
+      "stdin": true,
+      "tty": true,
+      "volumeMounts": [{
+        "name": "backup",
+        "mountPath": "/backup"
+      }]
+    }],
+    "volumes": [{
+      "name": "backup",
+      "persistentVolumeClaim": {
+        "claimName": "pra-backup"
+      }
+    }]
+  }
+}'
   
+```
+
+``` 
+ls -lh /backup
+```
+
+**Puis on stoppe notre appli **
+
+```
+kubectl -n pra scale deployment flask --replicas=0
+```
+
+** Lancer une restauration ciblée **
+
+```
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore-specific
+spec:
+  template:
+    spec:
+      containers:
+      - name: restore
+        image: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - cp /backup/backup-2026-03-27-10-15.db /data/app.db
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: backup
+          mountPath: /backup
+      restartPolicy: Never
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pra-data
+      - name: backup
+        persistentVolumeClaim:
+          claimName: pra-backup
+```
+
 ---------------------------------------------------
 Evaluation
 ---------------------------------------------------
