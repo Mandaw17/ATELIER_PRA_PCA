@@ -256,7 +256,8 @@ Il manque alors une HA sur la db.*
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-*On peut mettre en place une HA sur la db et sortir le backup de notre infra (s3 externe).*
+*On peut mettre en place une HA sur la db et sortir le backup de notre infra (s3 externe).
+Utiliser Postgres au lieu de sqlite avec une replication*
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
