@@ -88,6 +88,30 @@ def count():
 
     return jsonify(count=n)
 
+@app.get("/status")
+def status():
+    count = count()["count"]
+    last_backup_file = None
+    backup_age_seconds = None
+
+    try:
+        files = [f for f in os.listdir(backup_dir) if f.endswith(".db")]
+        if files:
+            files.sort(reverse=True)
+            last_backup = files[0]
+
+            full_path = os.path.join(backup_dir, last_backup)
+            mtime = os.path.getmtime(full_path)
+            backup_age = int(time.time() - mtime)
+    except Exception:
+        pass
+
+    return jsonify({
+        "count": count,
+        "last_backup_file": last_backup,
+        "backup_age_seconds": backup_age
+    })
+
 # ---------- Main ----------
 if __name__ == "__main__":
     init_db()
