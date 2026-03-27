@@ -268,8 +268,8 @@ Difficulté : Moyenne (~2 heures)
 * last_backup_file : nom du dernier backup présent dans /backup
 * backup_age_seconds : âge du dernier backup
 
-*..**Déposez ici une copie d'écran** 
-![Screenshot Actions](atelier6.1status.PNG)  
+*..**** 
+![Screenshot Actions](atelier6.1status.PNG)
 
 
 ---------------------------------------------------
