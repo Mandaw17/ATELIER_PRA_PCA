@@ -231,27 +231,32 @@ Faites preuve de pédagogie et soyez clair dans vos explications et procedures d
 **Exercice 1 :**  
 Quels sont les composants dont la perte entraîne une perte de données ?  
   
-*..Répondez à cet exercice ici..*
+*Dans l'absolu seul les pertes des composants pvc-Backup et le cronjob-backup peuvent entrainer une perte de données car ce sont les composants qui gerent notre pra et nous protegent de pertes eventuelles.
+Les pods sont automatiquement reconstruits (nombre de replicas)
+La perte de svc coupent la liaison mais ne cause pas de perte de données.
+*
 
 **Exercice 2 :**  
 Expliquez nous pourquoi nous n'avons pas perdu les données lors de la supression du PVC pra-data  
   
-*..Répondez à cet exercice ici..*
+*Parce que nous avions une solution de pca/pra avec le cron qui fait des backups à intervalle régulier de notre BD. Une restauration reste alors possible en cas de perte de notre pvc.*
 
 **Exercice 3 :**  
 Quels sont les RTO et RPO de cette solution ?  
   
-*..Répondez à cet exercice ici..*
+*Le RTO pout cette solution est d'environ 5 min, le temps de restaurer notre cluster et notre BD.
+Le RPO pour cette solution est de: 1 minute constituant le temps entre les sauvegardes *
 
 **Exercice 4 :**  
 Pourquoi cette solution (cet atelier) ne peux pas être utilisé dans un vrai environnement de production ? Que manque-t-il ?   
   
-*..Répondez à cet exercice ici..*
+*Parce que le backup se trouve dans la meme infra que la solution globale. Si l'infra tombe le backup tombe aussi.
+Il manque alors une HA sur la db.*
   
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-*..Répondez à cet exercice ici..*
+*On peut mettre en place une HA sur la db et sortir le backup de notre infra.*
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
